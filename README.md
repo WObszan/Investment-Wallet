@@ -34,5 +34,4 @@ The tool fetches historical market data, performs exploratory data analysis (EDA
 * **NumPy:** For high-performance numerical computing and matrix operations (dot products, covariance).
 * **Matplotlib & Seaborn:** For static data visualization (histograms, heatmaps, density plots).
 * **yfinance:** For fetching historical market data from the Yahoo Finance API.
-* **Tableau Public:** For the final interactive dashboard visualization.
 * **Git & GitHub:** For version control.
