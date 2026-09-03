@@ -1,7 +1,6 @@
 # Investment Portfolio
 
-[![GitHub Stars](https://img.shields.io/github/stars/WObszan/Investment_Portfolio)](https://github.com/WObszan/Investment_Portfolio/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/WObszan/Investment_Portfolio)](https://github.com/WObszan/Investment_Portfolio/network)
+[![GitHub Stars](https://img.shields.io/github/stars/WObszan/Investment-Wallet)](https://github.com/WObszan/Investment-Wallet/stargazers)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/built%20with-Streamlit-FF4B4B)](https://streamlit.io/)
 
