@@ -3,6 +3,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/WObszan/Investment-Wallet)](https://github.com/WObszan/Investment-Wallet/stargazers)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/built%20with-Streamlit-FF4B4B)](https://streamlit.io/)
+[![Tests](https://github.com/WObszan/Investment_Portfolio/actions/workflows/tests.yml/badge.svg)](https://github.com/WObszan/Investment_Portfolio/actions/workflows/tests.yml)
 
 Portfolio construction, risk analysis, and price-direction forecasting for equity portfolios.
 
@@ -74,6 +75,14 @@ pytest -v
 - **ML price-direction model** — XGBoost classifier on technical features (RSI, MACD,
   volatility, relative strength vs. benchmark, volume), tuned with Optuna on a held-out
   validation split, explained with SHAP, and backtested on a forward-return basis.
+
+
+## Continuous Integration (CI)
+
+This repository includes an automated GitHub Actions workflow (.github/workflows/tests.yml). On every push or pull_request to the main branch, the pipeline automatically:
+- Sets up a clean Python 3.12 environment on ubuntu-latest.
+- Installs uv and project dependencies.
+- Executes the full test suite via pytest.
 
 ## Project structure
 
