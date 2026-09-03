@@ -1,37 +1,110 @@
-# Portfolio Optimization & Risk Analysis using Monte Carlo Simulation
+# Investment Portfolio
 
-## Project Overview
+[![GitHub Stars](https://img.shields.io/github/stars/WObszan/Investment_Portfolio)](https://github.com/WObszan/Investment_Portfolio/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/WObszan/Investment_Portfolio)](https://github.com/WObszan/Investment_Portfolio/network)
+[![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/built%20with-Streamlit-FF4B4B)](https://streamlit.io/)
 
-This project is a comprehensive **Python-based** implementation of **Modern Portfolio Theory (MPT)**. The primary goal is to analyze a portfolio of financial assets (stocks, ETFs) and identify optimal asset allocation.
+Portfolio construction, risk analysis, and price-direction forecasting for equity portfolios.
 
-The tool fetches historical market data, performs exploratory data analysis (EDA), calculates risk metrics (including **Value at Risk - VaR**), and then runs **10,000+ Monte Carlo simulations** to map the **Efficient Frontier**. Finally, it identifies the portfolio with the **maximum Sharpe Ratio** (best risk-adjusted return) and the **minimum volatility** portfolio.
+## Project goal
 
+Investment Wallet turns raw price data into an optimized, risk-audited portfolio in one
+pipeline. It combines classical Modern Portfolio Theory (Monte Carlo + exact `scipy`
+optimization) with a supervised ML model (XGBoost + SHAP) that predicts short-term price
+direction — both evaluated strictly out-of-sample.
 
-##  Key Features
+## Architecture
 
-* **Dynamic Data Ingestion:** Fetches historical price data for any list of tickers using the `yfinance` library.
-* **Data Cleaning:** Intelligently handles `NaN` values resulting from different exchange holidays (e.g., WSE vs. NYSE) by forward-filling (`ffill`) prices and filling `0` for volume.
-* **Exploratory Data Analysis (EDA):** Calculates daily returns, analyzes return distributions (histograms), and visualizes the **correlation matrix** (`seaborn.heatmap`) to understand diversification benefits.
-* **Risk Modeling:** Implements historical **Value at Risk (VaR)** to quantify potential losses.
-* **Monte Carlo Simulation:** Runs over 10,000 simulations with random portfolio weights to generate the **Efficient Frontier**.
-* **Optimization:** Identifies and highlights two key portfolios:
-    1.  **Minimum Volatility Portfolio** (The "safest" option).
-    2.  **Maximum Sharpe Ratio Portfolio** (The "optimal" risk-adjusted option).
+```mermaid
+flowchart LR
+    YF[Yahoo Finance] --> Clean[data.py: clean & align prices]
+    Clean --> Returns[Daily returns]
 
+    Returns --> MC[Monte Carlo simulation]
+    Returns --> SciPy["scipy.optimize: exact frontier"]
+    MC --> Weights[Portfolio weights]
+    SciPy --> Weights
 
+    Weights --> Risk["risk.py: VaR / CVaR / Sortino / Max Drawdown"]
+    Weights --> Backtest[Out-of-sample backtest]
 
-##  Core Insights
+    Returns --> Features["ml_model.py: feature engineering"]
+    Features --> XGB[XGBoost + Optuna tuning]
+    XGB --> SHAP[SHAP explainability]
+    XGB --> MLBacktest[ML strategy backtest]
 
-* The correlation analysis confirmed (e.g., *a low correlation between Polish WIG20 assets and US tech stocks*), demonstrating the clear benefits of geographic diversification.
-* The generated Efficient Frontier clearly illustrates that achieving higher expected returns requires taking on exponentially higher levels of risk (volatility).
-* The Max Sharpe Ratio (optimal) portfolio is not the same as the Minimum Volatility (safest) portfolio, presenting a clear trade-off for different investment strategies.
+    Weights --> UI["app.py: Streamlit dashboard"]
+    Risk --> UI
+    Backtest --> UI
+    SHAP --> UI
+    MLBacktest --> UI
+```
 
+## Setup
 
-## Tech Stack & Libraries
+```bash
+cd portfolio-dashboard
+uv venv && uv pip install -r requirements.txt```
+```
 
-* **Python 3.12**
-* **Pandas:** For data manipulation, time-series analysis, and `DataFrame` management.
-* **NumPy:** For high-performance numerical computing and matrix operations (dot products, covariance).
-* **Matplotlib & Seaborn:** For static data visualization (histograms, heatmaps, density plots).
-* **yfinance:** For fetching historical market data from the Yahoo Finance API.
-* **Git & GitHub:** For version control.
+> `pandas_ta` is unpinned — if the install fails, this is the package to check first.
+
+## Common commands
+
+```bash
+streamlit run app.py
+pytest -v
+```
+
+## What it does
+
+- **Data** — downloads and cleans multi-ticker price history (`yfinance`), with per-ticker
+  validity checks and gap handling.
+- **Portfolio optimization** — Monte Carlo simulation (10k+ portfolios) *and* an exact
+  efficient frontier via `scipy.optimize` (SLSQP), including dedicated Max Sharpe / Min
+  Variance solvers.
+- **Risk metrics** — VaR, CVaR, Sortino Ratio, Max Drawdown, Calmar Ratio.
+- **Market risk** — CAPM regression (alpha/beta) and rolling beta over time.
+- **Clustering** — K-Means grouping of assets by risk/return profile.
+- **Backtesting** — chronological train/test split; portfolio weights are frozen on
+  training data and evaluated on unseen data against an equal-weight portfolio and a
+  benchmark.
+- **DCA projection** — expected/optimistic/pessimistic portfolio growth under periodic
+  contributions, with capped return assumptions to avoid extrapolating short-term rallies.
+- **ML price-direction model** — XGBoost classifier on technical features (RSI, MACD,
+  volatility, relative strength vs. benchmark, volume), tuned with Optuna on a held-out
+  validation split, explained with SHAP, and backtested on a forward-return basis.
+
+## Project structure
+
+```
+portfolio-dashboard/
+├── app.py            # Streamlit UI - no calculation logic
+├── data.py            # data download, cleaning, train/test split
+├── optimization.py    # Monte Carlo, scipy optimizer, DCA projection
+├── risk.py             # VaR/CVaR, Sortino, Max Drawdown, CAPM, rolling beta
+├── clustering.py       # K-Means asset grouping
+├── ml_model.py         # feature engineering, XGBoost + Optuna + SHAP, ML backtest
+├── callbacks.py        # ticker selection widget synchronization
+├── viz.py              # Plotly chart builders
+├── tests/               # pytest unit tests
+└── requirements.txt
+```
+
+## Key results
+
+> TODO — fill in with your own run's numbers before sharing this repo:
+> - Max Sharpe vs. equal-weight vs. benchmark, out-of-sample (Sharpe, return, drawdown)
+> - ML model out-of-sample accuracy and Strategy vs. Buy & Hold total return
+> - Correlation highlights driving diversification benefits
+
+## Limitations
+
+- Backtests assume no transaction costs, taxes, or slippage.
+- No short selling; weights are bounded to `[0, 1]`.
+- Out-of-sample results depend on the chosen train/test split date and are not
+  guaranteed to hold on future data.
+- The ML model predicts direction only, over a fixed 5-day horizon — not calibrated
+  position sizing or risk-adjusted signal strength.
+- Currency risk is not modeled for non-USD assets.
