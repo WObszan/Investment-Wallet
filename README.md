@@ -44,7 +44,7 @@ flowchart LR
 
 ```bash
 cd portfolio-dashboard
-uv venv && uv pip install -r requirements.txt```
+uv venv && uv pip install -r requirements.txt
 ```
 
 > `pandas_ta` is unpinned — if the install fails, this is the package to check first.
