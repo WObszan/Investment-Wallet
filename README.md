@@ -100,13 +100,6 @@ portfolio-dashboard/
 └── requirements.txt
 ```
 
-## Key results
-
-> TODO — fill in with your own run's numbers before sharing this repo:
-> - Max Sharpe vs. equal-weight vs. benchmark, out-of-sample (Sharpe, return, drawdown)
-> - ML model out-of-sample accuracy and Strategy vs. Buy & Hold total return
-> - Correlation highlights driving diversification benefits
-
 ## Limitations
 
 - Backtests assume no transaction costs, taxes, or slippage.
